@@ -36,25 +36,6 @@ namespace TestXInput
             guitarStrumPanel.BackColor = Color.FromArgb(0, 0, 0 , 0);
 
             directInput = new DirectInput();
-            keyboardController = new KeyboardController(directInput);
-            keyboardController.Bindings.Add(Key.Up, ControllerButton.DUp);
-            keyboardController.Bindings.Add(Key.Down, ControllerButton.DDown);
-            keyboardController.Bindings.Add(Key.Left, ControllerButton.DLeft);
-            keyboardController.Bindings.Add(Key.Right, ControllerButton.DRight);
-            keyboardController.Bindings.Add(Key.Z, ControllerButton.Green);
-            keyboardController.Bindings.Add(Key.X, ControllerButton.Red);
-            keyboardController.Bindings.Add(Key.C, ControllerButton.Yellow);
-            keyboardController.Bindings.Add(Key.V, ControllerButton.Blue);
-            keyboardController.Bindings.Add(Key.B, ControllerButton.Orange);
-            keyboardController.Bindings.Add(Key.Return, ControllerButton.Start);
-            keyboardController.Bindings.Add(Key.RightShift, ControllerButton.Select);
-
-            keyboardController.OnStrum += Keyboard_OnStrum;
-            keyboardController.OnFretChange += Keyboard_OnFretChange;
-
-            guitarController = new GuitarController();
-            guitarController.OnStrum += Guitar_OnStrum;
-            guitarController.OnFretChange += Guitar_OnFretChange;
         }
 
         private void Keyboard_OnStrum(object sender, ControllerEventArgs controllerEventArgs) {
@@ -108,12 +89,37 @@ namespace TestXInput
         }
 
         private void Form1_Load(object sender, EventArgs e) {
+            keyboardController = new KeyboardController(directInput);
+            keyboardController.Bindings.Add(Key.Up, ControllerButton.DUp);
+            keyboardController.Bindings.Add(Key.Down, ControllerButton.DDown);
+            keyboardController.Bindings.Add(Key.Left, ControllerButton.DLeft);
+            keyboardController.Bindings.Add(Key.Right, ControllerButton.DRight);
+            keyboardController.Bindings.Add(Key.Z, ControllerButton.Green);
+            keyboardController.Bindings.Add(Key.X, ControllerButton.Red);
+            keyboardController.Bindings.Add(Key.C, ControllerButton.Yellow);
+            keyboardController.Bindings.Add(Key.V, ControllerButton.Blue);
+            keyboardController.Bindings.Add(Key.B, ControllerButton.Orange);
+            keyboardController.Bindings.Add(Key.Return, ControllerButton.Start);
+            keyboardController.Bindings.Add(Key.RightShift, ControllerButton.Select);
+
+            keyboardController.OnStrum += Keyboard_OnStrum;
+            keyboardController.OnFretChange += Keyboard_OnFretChange;
+
+            try {
+                guitarController = new GuitarController();
+                guitarController.OnStrum += Guitar_OnStrum;
+                guitarController.OnFretChange += Guitar_OnFretChange;
+            }
+            catch (NullReferenceException ex) {
+                MessageBox.Show(ex.Message);
+            }
+
             timerControllerUpdate.Start();
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
             keyboardController.Update();
-            guitarController.Update();
+            guitarController?.Update();
         }
 
         private void timerClickFade_Tick(object sender, EventArgs e) {

@@ -48,12 +48,12 @@
             // timerControllerUpdate
             // 
             this.timerControllerUpdate.Interval = 5;
-            this.timerControllerUpdate.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timerControllerUpdate.Tick += new System.EventHandler(this.UpdateTimerTick);
             // 
             // timerClickFade
             // 
             this.timerClickFade.Interval = 15;
-            this.timerClickFade.Tick += new System.EventHandler(this.timerClickFade_Tick);
+            this.timerClickFade.Tick += new System.EventHandler(this.FadeTimerTick);
             // 
             // keyboardStrumPanel
             // 

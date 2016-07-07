@@ -1,83 +1,155 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="GuitarController.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The guitar controller.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-using SharpDX.XInput;
+
+
 using XController = SharpDX.XInput.Controller;
 
-namespace TestXInput.Controller
-{
+namespace TestXInput.Controller {
+    using System;
+    using System.Linq;
+
+    using SharpDX;
+    using SharpDX.XInput;
+
+    /// <summary>
+    /// The guitar controller.
+    /// </summary>
     public sealed class GuitarController : Controller {
-        private XController controller;
+        /// <summary>
+        /// The controller.
+        /// </summary>
+        private readonly XController controller;
 
-        private State oldControllerState;
+        /// <summary>
+        /// The last packet number.
+        /// </summary>
+        private int lastPacketNumber;
 
-        public override void Update() {
-            State controllerState = controller.GetState();
-
-            if (oldControllerState.PacketNumber != controllerState.PacketNumber) {
-                var buttons = controllerState.Gamepad.Buttons;
-
-                this.buttonState = 0;
-                if ((buttons & GamepadButtonFlags.A) != 0) {
-                    this.buttonState |= ControllerButton.Green;
-                }
-                if ((buttons & GamepadButtonFlags.B) != 0) {
-                    this.buttonState |= ControllerButton.Red;
-                }
-                if ((buttons & GamepadButtonFlags.Y) != 0) {
-                    this.buttonState |= ControllerButton.Yellow;
-                }
-                if ((buttons & GamepadButtonFlags.X) != 0) {
-                    this.buttonState |= ControllerButton.Blue;
-                }
-                if ((buttons & GamepadButtonFlags.LeftShoulder) != 0) {
-                    this.buttonState |= ControllerButton.Orange;
-                }
-                if ((buttons & GamepadButtonFlags.DPadDown) != 0) {
-                    this.buttonState |= ControllerButton.DDown;
-                }
-                if ((buttons & GamepadButtonFlags.DPadUp) != 0) {
-                    this.buttonState |= ControllerButton.DUp;
-                }
-                if ((buttons & GamepadButtonFlags.DPadLeft) != 0) {
-                    this.buttonState |= ControllerButton.DLeft;
-                }
-                if ((buttons & GamepadButtonFlags.DPadRight) != 0) {
-                    this.buttonState |= ControllerButton.DRight;
-                }
-                if ((buttons & GamepadButtonFlags.Back) != 0) {
-                    this.buttonState |= ControllerButton.Select;
-                }
-                if ((buttons & GamepadButtonFlags.Start) != 0) {
-                    this.buttonState |= ControllerButton.Start;
-                }
-
-                this.whammyState = controllerState.Gamepad.RightThumbX / 32768.0f;
-                this.tiltState = controllerState.Gamepad.RightThumbY / 32768.0f;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GuitarController"/> class.
+        /// </summary>
+        /// <param name="index">
+        /// The index.
+        /// </param>
+        /// <exception cref="NullReferenceException">
+        /// </exception>
+        public GuitarController(UserIndex index = UserIndex.Any) {
+            if (index == UserIndex.Any) {
+                var controllers = new[]
+                                  {
+                                      new XController(UserIndex.One), new XController(UserIndex.Two), 
+                                      new XController(UserIndex.Three), new XController(UserIndex.Four)
+                                  };
+                this.controller = controllers.FirstOrDefault(c => c.IsConnected && IsGuitarController(c));
+            }
+            else {
+                this.controller = new XController(index);
             }
 
-            oldControllerState = controllerState;
+            if (this.controller == null) {
+                throw new NullReferenceException("No guitar controller found.");
+            }
+        }
+
+        /// <summary>
+        /// The update.
+        /// </summary>
+        /// <exception cref="SharpDXException">
+        /// Getting the controller state fails.
+        /// </exception>
+        public override void Update() {
+            State controllerState;
+            try {
+                controllerState = this.controller.GetState();
+            }
+            catch (SharpDXException ex) {
+                if (ex.ResultCode == ResultCode.NotConnected) {
+                    this.Connected = false;
+                }
+                else {
+                    throw;
+                }
+
+                return;
+            }
+
+            if (this.lastPacketNumber != controllerState.PacketNumber) {
+                var buttons = controllerState.Gamepad.Buttons;
+
+                this.ButtonState = 0;
+                if ((buttons & GamepadButtonFlags.A) != 0) {
+                    this.ButtonState |= ControllerButton.Green;
+                }
+
+                if ((buttons & GamepadButtonFlags.B) != 0) {
+                    this.ButtonState |= ControllerButton.Red;
+                }
+
+                if ((buttons & GamepadButtonFlags.Y) != 0) {
+                    this.ButtonState |= ControllerButton.Yellow;
+                }
+
+                if ((buttons & GamepadButtonFlags.X) != 0) {
+                    this.ButtonState |= ControllerButton.Blue;
+                }
+
+                if ((buttons & GamepadButtonFlags.LeftShoulder) != 0) {
+                    this.ButtonState |= ControllerButton.Orange;
+                }
+
+                if ((buttons & GamepadButtonFlags.DPadDown) != 0) {
+                    this.ButtonState |= ControllerButton.DDown;
+                }
+
+                if ((buttons & GamepadButtonFlags.DPadUp) != 0) {
+                    this.ButtonState |= ControllerButton.DUp;
+                }
+
+                if ((buttons & GamepadButtonFlags.DPadLeft) != 0) {
+                    this.ButtonState |= ControllerButton.DLeft;
+                }
+
+                if ((buttons & GamepadButtonFlags.DPadRight) != 0) {
+                    this.ButtonState |= ControllerButton.DRight;
+                }
+
+                if ((buttons & GamepadButtonFlags.Back) != 0) {
+                    this.ButtonState |= ControllerButton.Select;
+                }
+
+                if ((buttons & GamepadButtonFlags.Start) != 0) {
+                    this.ButtonState |= ControllerButton.Start;
+                }
+
+                this.WhammyState = controllerState.Gamepad.RightThumbX / 32768.0f;
+                this.TiltState = controllerState.Gamepad.RightThumbY / 32768.0f;
+            }
+
+            this.lastPacketNumber = controllerState.PacketNumber;
             base.Update();
         }
 
-        public GuitarController(UserIndex index = UserIndex.Any) {
-            if (index == UserIndex.Any) {
-                var controllers = new XController[]
-                                  {
-                                      new XController(UserIndex.One), new XController(UserIndex.Two),
-                                      new XController(UserIndex.Three), new XController(UserIndex.Four)
-                                  };
-                controller = controllers.FirstOrDefault(c => c.IsConnected);
-            }
-            else {
-                controller = new XController(index);
-            }
-            if (controller == null) throw new NullReferenceException("No guitar controller found.");
+        /// <summary>
+        /// The is guitar controller.
+        /// </summary>
+        /// <param name="c">
+        /// The c.
+        /// </param>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
+        private static bool IsGuitarController(XController c) {
+            var subtype = c.GetCapabilities(DeviceQueryType.Any).SubType;
 
-            oldControllerState = controller.GetState();
+            return subtype == DeviceSubType.Guitar || subtype == DeviceSubType.GuitarAlternate
+                    || subtype == DeviceSubType.GuitarBass;
         }
     }
 }

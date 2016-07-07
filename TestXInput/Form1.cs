@@ -1,132 +1,219 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Form1.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   The form 1.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
-using SharpDX.DirectInput;
-using TestXInput.Controller;
-
-namespace TestXInput
-{
+namespace TestXInput {
+    using System;
+    using System.Drawing;
     using System.Media;
+    using System.Windows.Forms;
 
+    using SharpDX.DirectInput;
+
+    using TestXInput.Controller;
+    using TestXInput.Properties;
+
+    /// <summary>
+    /// The form 1.
+    /// </summary>
     public partial class Form1 : Form {
-        private KeyboardController keyboardController;
+        /// <summary>
+        /// The click sound.
+        /// </summary>
+        private readonly SoundPlayer clickSound;
+
+        /// <summary>
+        /// The direct input.
+        /// </summary>
+        private readonly DirectInput directInput;
+
+        /// <summary>
+        /// The guitar controller.
+        /// </summary>
         private GuitarController guitarController;
 
-        private DirectInput directInput;
-
+        /// <summary>
+        /// The guitar strum alpha.
+        /// </summary>
         private int guitarStrumAlpha = 255;
 
+        /// <summary>
+        /// The keyboard controller.
+        /// </summary>
+        private KeyboardController keyboardController;
+
+        /// <summary>
+        /// The keyboard strum alpha.
+        /// </summary>
         private int keyboardStrumAlpha = 255;
 
-        private SoundPlayer clickSound;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Form1"/> class.
+        /// </summary>
         public Form1() {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            clickSound = new SoundPlayer(Properties.Resources.Yamaha_RX15_Rimshot);
+            this.clickSound = new SoundPlayer(Resources.Yamaha_RX15_Rimshot);
 
-            keyboardStrumPanel.BackColor = Color.FromArgb(0, 0, 0, 0);
-            guitarStrumPanel.BackColor = Color.FromArgb(0, 0, 0 , 0);
+            this.keyboardStrumPanel.BackColor = Color.FromArgb(0, 0, 0, 0);
+            this.guitarStrumPanel.BackColor = Color.FromArgb(0, 0, 0, 0);
 
-            directInput = new DirectInput();
+            this.directInput = new DirectInput();
         }
 
+        /// <summary>
+        /// The keyboard_ on strum.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="controllerEventArgs">
+        /// The controller event args.
+        /// </param>
         private void Keyboard_OnStrum(object sender, ControllerEventArgs controllerEventArgs) {
             this.keyboardStrumAlpha = 255;
-            timerClickFade.Start();
-            clickSound.Play();
+            this.timerClickFade.Start();
+            this.clickSound.Play();
         }
 
+        /// <summary>
+        /// The guitar_ on strum.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="controllerEventArgs">
+        /// The controller event args.
+        /// </param>
         private void Guitar_OnStrum(object sender, ControllerEventArgs controllerEventArgs) {
             this.guitarStrumAlpha = 255;
-            timerClickFade.Start();
-            clickSound.Play();
+            this.timerClickFade.Start();
+            this.clickSound.Play();
         }
 
+        /// <summary>
+        /// The keyboard_ on fret change.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="controllerEventArgs">
+        /// The controller event args.
+        /// </param>
         private void Keyboard_OnFretChange(object sender, ControllerEventArgs controllerEventArgs) {
-            ControllerButton buttons = controllerEventArgs.ButtonsPressed;
-            keyboardGreenPanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Green) == 0 ? 0 : 255,
+            var buttons = controllerEventArgs.ButtonsPressed;
+            this.keyboardGreenPanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Green) == 0 ? 0 : 255, 
                 Color.Green);
-            keyboardRedPanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Red) == 0 ? 0 : 255,
-                Color.Red);
-            keyboardYellowPanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Yellow) == 0 ? 0 : 255,
+            this.keyboardRedPanel.BackColor = Color.FromArgb((buttons & ControllerButton.Red) == 0 ? 0 : 255, Color.Red);
+            this.keyboardYellowPanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Yellow) == 0 ? 0 : 255, 
                 Color.Yellow);
-            keyboardBluePanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Blue) == 0 ? 0 : 255,
+            this.keyboardBluePanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Blue) == 0 ? 0 : 255, 
                 Color.Blue);
-            keyboardOrangePanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Orange) == 0 ? 0 : 255,
+            this.keyboardOrangePanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Orange) == 0 ? 0 : 255, 
                 Color.Orange);
         }
 
+        /// <summary>
+        /// The guitar_ on fret change.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="controllerEventArgs">
+        /// The controller event args.
+        /// </param>
         private void Guitar_OnFretChange(object sender, ControllerEventArgs controllerEventArgs) {
-            ControllerButton buttons = controllerEventArgs.ButtonsPressed;
-            guitarGreenPanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Green) == 0 ? 0 : 255,
+            var buttons = controllerEventArgs.ButtonsPressed;
+            this.guitarGreenPanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Green) == 0 ? 0 : 255, 
                 Color.Green);
-            guitarRedPanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Red) == 0 ? 0 : 255,
-                Color.Red);
-            guitarYellowPanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Yellow) == 0 ? 0 : 255,
+            this.guitarRedPanel.BackColor = Color.FromArgb((buttons & ControllerButton.Red) == 0 ? 0 : 255, Color.Red);
+            this.guitarYellowPanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Yellow) == 0 ? 0 : 255, 
                 Color.Yellow);
-            guitarBluePanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Blue) == 0 ? 0 : 255,
+            this.guitarBluePanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Blue) == 0 ? 0 : 255, 
                 Color.Blue);
-            guitarOrangePanel.BackColor = Color.FromArgb(
-                (buttons & ControllerButton.Orange) == 0 ? 0 : 255,
+            this.guitarOrangePanel.BackColor = Color.FromArgb(
+                (buttons & ControllerButton.Orange) == 0 ? 0 : 255, 
                 Color.Orange);
         }
 
+        /// <summary>
+        /// The form 1_ load.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
         private void Form1_Load(object sender, EventArgs e) {
-            keyboardController = new KeyboardController(directInput);
-            keyboardController.Bindings.Add(Key.Up, ControllerButton.DUp);
-            keyboardController.Bindings.Add(Key.Down, ControllerButton.DDown);
-            keyboardController.Bindings.Add(Key.Left, ControllerButton.DLeft);
-            keyboardController.Bindings.Add(Key.Right, ControllerButton.DRight);
-            keyboardController.Bindings.Add(Key.Z, ControllerButton.Green);
-            keyboardController.Bindings.Add(Key.X, ControllerButton.Red);
-            keyboardController.Bindings.Add(Key.C, ControllerButton.Yellow);
-            keyboardController.Bindings.Add(Key.V, ControllerButton.Blue);
-            keyboardController.Bindings.Add(Key.B, ControllerButton.Orange);
-            keyboardController.Bindings.Add(Key.Return, ControllerButton.Start);
-            keyboardController.Bindings.Add(Key.RightShift, ControllerButton.Select);
+            this.keyboardController = new KeyboardController(this.directInput);
+            this.keyboardController.Bindings.Add(Key.Up, ControllerButton.DUp);
+            this.keyboardController.Bindings.Add(Key.Down, ControllerButton.DDown);
+            this.keyboardController.Bindings.Add(Key.Left, ControllerButton.DLeft);
+            this.keyboardController.Bindings.Add(Key.Right, ControllerButton.DRight);
+            this.keyboardController.Bindings.Add(Key.Z, ControllerButton.Green);
+            this.keyboardController.Bindings.Add(Key.X, ControllerButton.Red);
+            this.keyboardController.Bindings.Add(Key.C, ControllerButton.Yellow);
+            this.keyboardController.Bindings.Add(Key.V, ControllerButton.Blue);
+            this.keyboardController.Bindings.Add(Key.B, ControllerButton.Orange);
+            this.keyboardController.Bindings.Add(Key.Return, ControllerButton.Start);
+            this.keyboardController.Bindings.Add(Key.RightShift, ControllerButton.Select);
 
-            keyboardController.OnStrum += Keyboard_OnStrum;
-            keyboardController.OnFretChange += Keyboard_OnFretChange;
+            this.keyboardController.OnStrum += this.Keyboard_OnStrum;
+            this.keyboardController.OnFretChange += this.Keyboard_OnFretChange;
 
             try {
-                guitarController = new GuitarController();
-                guitarController.OnStrum += Guitar_OnStrum;
-                guitarController.OnFretChange += Guitar_OnFretChange;
+                this.guitarController = new GuitarController();
+                this.guitarController.OnStrum += this.Guitar_OnStrum;
+                this.guitarController.OnFretChange += this.Guitar_OnFretChange;
             }
             catch (NullReferenceException ex) {
                 MessageBox.Show(ex.Message);
             }
 
-            timerControllerUpdate.Start();
+            this.timerControllerUpdate.Start();
         }
 
-        private void timer1_Tick(object sender, EventArgs e) {
-            keyboardController.Update();
-            guitarController?.Update();
+        /// <summary>
+        /// The update timer tick.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
+        private void UpdateTimerTick(object sender, EventArgs e) {
+            this.keyboardController.Update();
+            this.guitarController?.Update();
         }
 
-        private void timerClickFade_Tick(object sender, EventArgs e) {
+        /// <summary>
+        /// The fade timer tick.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender.
+        /// </param>
+        /// <param name="e">
+        /// The e.
+        /// </param>
+        private void FadeTimerTick(object sender, EventArgs e) {
             this.guitarStrumAlpha -= 10;
             this.keyboardStrumAlpha -= 10;
             if (this.guitarStrumAlpha <= 0 && this.keyboardStrumAlpha <= 0) {
-                timerClickFade.Stop();
+                this.timerClickFade.Stop();
             }
 
             if (this.guitarStrumAlpha < 0) {
@@ -136,8 +223,9 @@ namespace TestXInput
             if (this.keyboardStrumAlpha < 0) {
                 this.keyboardStrumAlpha = 0;
             }
-            keyboardStrumPanel.BackColor = Color.FromArgb(this.keyboardStrumAlpha, Color.Black);
-            guitarStrumPanel.BackColor = Color.FromArgb(this.guitarStrumAlpha, Color.Black);
+
+            this.keyboardStrumPanel.BackColor = Color.FromArgb(this.keyboardStrumAlpha, Color.Black);
+            this.guitarStrumPanel.BackColor = Color.FromArgb(this.guitarStrumAlpha, Color.Black);
         }
     }
 }
